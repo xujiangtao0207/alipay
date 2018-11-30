@@ -1,4 +1,4 @@
-AliPay SDK for Golang
+AliPay SDK for Golang, 支付宝小程序SDK(开发中)
 
 
 ## 鸣谢
@@ -13,7 +13,7 @@ AliPay SDK for Golang
 
 ## 帮助
 
-在集成的过程中有遇到问题，欢迎加 QQ 群 564704807 讨论。
+在集成的过程中有遇到问题，欢迎加 QQ 741966292 讨论。
 
 ## 已实现接口
 
