@@ -26,10 +26,23 @@ func (this AliPayUserInfoShare) ExtJSONParamValue() string {
 
 type AliPayUserInfoShareResponse struct {
 	Body struct {
-		Code         string `json:"code"`
-		Msg          string `json:"msg"`
-		SubCode      string `json:"sub_code"`
-		SubMsg       string `json:"sub_msg"`
-	} `json:"alipay_system_oauth_token_response"`
+		Code    string `json:"code"`
+		Msg     string `json:"msg"`
+		SubCode string `json:"sub_code"`
+		SubMsg  string `json:"sub_msg"`
+	} `json:"alipay_user_info_share_response"`
+	ErrorResp struct {
+		Code    string `json:"code"`
+		Msg     string `json:"msg"`
+		SubCode string `json:"sub_code"`
+		SubMsg  string `json:"sub_msg"`
+	} `json:"error_response"`
 	Sign string `json:"sign"`
+}
+
+func (this *AliPayUserInfoShareResponse) IsSuccess() bool {
+	if this.Body.Code == K_SUCCESS_CODE {
+		return true
+	}
+	return false
 }

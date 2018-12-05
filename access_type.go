@@ -28,10 +28,13 @@ func (this AliPayAccessToken) ExtJSONParamValue() string {
 
 type AliPayAccessTokenResponse struct {
 	Body struct {
-		Code         string `json:"code"`
-		Msg          string `json:"msg"`
-		SubCode      string `json:"sub_code"`
-		SubMsg       string `json:"sub_msg"`
+		//error
+		Code    string `json:"code"`
+		Msg     string `json:"msg"`
+		SubCode string `json:"sub_code"`
+		SubMsg  string `json:"sub_msg"`
+
+		//success
 		UserId       string `json:"user_id"`
 		AccessToken  string `json:"access_token"`
 		ExpiresIn    string `json:"expires_in"`
@@ -39,4 +42,11 @@ type AliPayAccessTokenResponse struct {
 		ReExpiresIn  string `json:"re_expires_in"`
 	} `json:"alipay_system_oauth_token_response"`
 	Sign string `json:"sign"`
+}
+
+func (this *AliPayAccessTokenResponse) IsSuccess() bool {
+	if this.Body.AccessToken != "" {
+		return true
+	}
+	return false
 }
