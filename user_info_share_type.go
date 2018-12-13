@@ -13,6 +13,7 @@ func (this AliPayUserInfoShare) APIName() string {
 func (this AliPayUserInfoShare) Params() map[string]string {
 	var m = make(map[string]string)
 	m["app_auth_token"] = this.AppAuthToken
+	m["auth_token"] = this.AuthToken
 	return m
 }
 

@@ -15,6 +15,8 @@ func (this AliPayAccessToken) APIName() string {
 func (this AliPayAccessToken) Params() map[string]string {
 	var m = make(map[string]string)
 	m["app_auth_token"] = this.AppAuthToken
+	m["grant_type"] = this.GrantType
+	m["code"] = this.Code
 	return m
 }
 
@@ -41,12 +43,18 @@ type AliPayAccessTokenResponse struct {
 		ReFreshToken string `json:"refresh_token"`
 		ReExpiresIn  string `json:"re_expires_in"`
 	} `json:"alipay_system_oauth_token_response"`
+	ErrorResp struct {
+		Code    string `json:"code"`
+		Msg     string `json:"msg"`
+		SubCode string `json:"sub_code"`
+		SubMsg  string `json:"sub_msg"`
+	} `json:"error_response"`
 	Sign string `json:"sign"`
 }
 
-func (this *AliPayAccessTokenResponse) IsSuccess() bool {
+func (this *AliPayAccessTokenResponse) IsSuccess() (bool, string) {
 	if this.Body.AccessToken != "" {
-		return true
+		return true, ""
 	}
-	return false
+	return false, marshal(this.ErrorResp)
 }
