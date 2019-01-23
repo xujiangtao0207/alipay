@@ -31,6 +31,18 @@ type AliPayUserInfoShareResponse struct {
 		Msg     string `json:"msg"`
 		SubCode string `json:"sub_code"`
 		SubMsg  string `json:"sub_msg"`
+
+		//success
+		UserId             string `json:"user_id"`
+		Avatar             string `json:"avatar"`
+		Province           string `json:"province"`
+		City               string `json:"city"`
+		Nickname           string `json:"nick_name"`
+		IsStudentCertified string `json:"is_student_certified"`
+		UserType           string `json::"user_type"`
+		UserStatus         string `json:"user_status"`
+		IsCertified        string `json:"is_certified"`
+		Gender             string `json:"gender"`
 	} `json:"alipay_user_info_share_response"`
 	ErrorResp struct {
 		Code    string `json:"code"`

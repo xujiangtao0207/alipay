@@ -2,6 +2,7 @@ package alipay
 
 import (
 	"crypto"
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"io"
@@ -12,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"log"
 	"github.com/chencaixiong/alipay/encoding"
 )
 
@@ -32,7 +34,10 @@ func New(appId, aliPublicKey, privateKey string, isProduction bool) (client *Ali
 	//client.partnerId = partnerId
 	client.privateKey = encoding.ParsePrivateKey(privateKey)
 	client.AliPayPublicKey = encoding.ParsePublicKey(aliPublicKey)
-	client.Client = http.DefaultClient
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client.Client = &http.Client{Transport: tr}//http.DefaultClient
 	if isProduction {
 		client.apiDomain = K_ALI_PAY_PRODUCTION_API_URL
 		client.notifyVerifyDomain = K_ALI_PAY_PRODUCTION_MAPI_URL
@@ -109,6 +114,8 @@ func (this *AliPay) doRequest(method string, param AliPayParam, results interfac
 		return err
 	}
 
+	log.Printf("[alipay][%v]resp body: %v", param.APIName(), string(data))
+
 	if len(this.AliPayPublicKey) > 0 {
 		var dataStr = string(data)
 
@@ -142,6 +149,74 @@ func (this *AliPay) doRequest(method string, param AliPayParam, results interfac
 
 	return err
 }
+/*
+func (this *AliPay) postJSON(method string, param AliPayParam, results interface{}) (err error) {
+	var reqBody = make(map[string]interface{})
+
+	if param != nil {
+		p, err := this.URLValues(param)
+		if err != nil {
+			return err
+		}
+
+		for key, value := range p {
+			reqBody[key] = value[0]
+		}
+	}
+
+	reqJson, _ := json.Marshal(reqBody)
+	req, err := http.NewRequest(method, this.apiDomain, strings.NewReader(string(reqJson)))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", K_CONTENT_TYPE_JSON)
+
+	resp, err := this.Client.Do(req)
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+	if err != nil {
+		return err
+	}
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	if len(this.AliPayPublicKey) > 0 {
+		var dataStr = string(data)
+
+		var rootNodeName = strings.Replace(param.APIName(), ".", "_", -1) + k_RESPONSE_SUFFIX
+
+		var rootIndex = strings.LastIndex(dataStr, rootNodeName)
+		var errorIndex = strings.LastIndex(dataStr, k_ERROR_RESPONSE)
+
+		var content string
+		var sign string
+
+		if rootIndex > 0 {
+			content, sign = parserJSONSource(dataStr, rootNodeName, rootIndex)
+		} else if errorIndex > 0 {
+			content, sign = parserJSONSource(dataStr, k_ERROR_RESPONSE, errorIndex)
+		} else {
+			return nil
+		}
+
+		if sign != "" {
+			if ok, err := verifyData([]byte(content), this.SignType, sign, this.AliPayPublicKey); ok == false {
+				return err
+			}
+		}
+	}
+
+	err = json.Unmarshal(data, results)
+	if err != nil {
+		return err
+	}
+
+	return err
+}*/
 
 func (this *AliPay) DoRequest(method string, param AliPayParam, results interface{}) (err error) {
 	return this.doRequest(method, param, results)

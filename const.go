@@ -33,4 +33,5 @@ const (
 
 const (
 	K_CONTENT_TYPE_FORM = "application/x-www-form-urlencoded;charset=utf-8"
+	K_CONTENT_TYPE_JSON = "application/json"
 )
