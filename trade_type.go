@@ -33,7 +33,7 @@ type TradePay struct {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// https://docs.open.alipay.com/270/alipay.trade.page.pay
+// https://docs.open.alipay.com/api_1/alipay.trade.app.pay
 type AliPayTradePagePay struct {
 	TradePay
 	AuthToken   string `json:"auth_token,omitempty"`   // 针对用户授权接口，获取用户相关数据时，用于标识用户授权关系
