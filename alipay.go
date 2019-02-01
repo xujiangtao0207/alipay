@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"log"
 	"github.com/chencaixiong/alipay/encoding"
+	"log"
 )
 
 type AliPay struct {
@@ -37,7 +37,7 @@ func New(appId, aliPublicKey, privateKey string, isProduction bool) (client *Ali
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	client.Client = &http.Client{Transport: tr}//http.DefaultClient
+	client.Client = &http.Client{Transport: tr} //http.DefaultClient
 	if isProduction {
 		client.apiDomain = kProductionURL
 		client.notifyVerifyDomain = kProductionMAPIURL
@@ -148,6 +148,7 @@ func (this *AliPay) doRequest(method string, param AliPayParam, results interfac
 
 	return err
 }
+
 /*
 func (this *AliPay) postJSON(method string, param AliPayParam, results interface{}) (err error) {
 	var reqBody = make(map[string]interface{})
