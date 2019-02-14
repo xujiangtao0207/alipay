@@ -103,10 +103,13 @@ func GetTradeNotification(req *http.Request, aliPayPublicKey []byte) (noti *Trad
 	//	return nil, errors.New("不是有效的 Notify")
 	//}
 
-	ok, err := verifySign(req.Form, aliPayPublicKey)
-	if ok == false {
-		return nil, err
+	if len(aliPayPublicKey) > 0 {
+		ok, err := verifySign(req.Form, aliPayPublicKey)
+		if ok == false {
+			return nil, err
+		}
 	}
+
 	return noti, err
 }
 
