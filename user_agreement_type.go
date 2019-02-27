@@ -129,7 +129,7 @@ type AliPayUserAgreementQueryResponse struct {
 		ExternalAgreementNo string `json:"external_agreement_no"`
 		ZmOpenId            string `json:"zm_open_id"`
 		ExternalLogonId     string `json:"external_logon_id"`
-	} `json:"alipay_user_agreement_page_sign_response"`
+	} `json:"alipay_user_agreement_query_response"`
 	ErrorResp struct {
 		Code    string `json:"code"`
 		Msg     string `json:"msg"`
