@@ -448,6 +448,12 @@ type GoodsDetailItem struct {
 	ShowUrl       string `json:"show_url"`
 }
 
+type AgreementParamsItem struct {
+	AgreementNo   string `json:"agreement_no"`    //支付宝系统中用以唯一标识用户签约记录的编号（用户签约成功后的协议号 ）
+	AuthConfirmNo string `json:"auth_confirm_no"` //鉴权确认码，在需要做支付鉴权校验时，该参数不能为空
+	ApplyToken    string `json:"apply_token"`     //鉴权申请token，其格式和内容，由支付宝定义。在需要做支付鉴权校验时，该参数不能为空。
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 // https://docs.open.alipay.com/api_1/alipay.trade.pay/
 type AliPayTradePay struct {
@@ -457,15 +463,16 @@ type AliPayTradePay struct {
 	Scene    string `json:"scene"`     // 必须 支付场景 条码支付，取值：bar_code 声波支付，取值：wave_code, bar_code, wave_code
 	AuthCode string `json:"auth_code"` // 必须 支付授权码
 
-	BuyerId            string             `json:"buyer_id"` // 可选 家的支付宝用户id，如果为空，会从传入了码值信息中获取买家ID
-	TransCurrency      string             `json:"trans_currency,omitempty"`
-	SettleCurrency     string             `json:"settle_currency,omitempty"`
-	DiscountableAmount string             `json:"discountable_amount,omitempty"` // 可选 参与优惠计算的金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000]。 如果该值未传入，但传入了【订单总金额】和【不可打折金额】，则该值默认为【订单总金额】-【不可打折金额】
-	GoodsDetail        []*GoodsDetailItem `json:"goods_detail,omitempty"`        // 可选 订单包含的商品列表信息，Json格式，其它说明详见商品明细说明
-	OperatorId         string             `json:"operator_id,omitempty"`         // 可选 商户操作员编号
-	TerminalId         string             `json:"terminal_id,omitempty"`         // 可选 商户机具终端编号
-	AuthConfirmMode    string             `json:"auth_confirm_mode,omitempty"`
-	TerminalParams     string             `json:"terminal_params,omitempty"`
+	BuyerId            string              `json:"buyer_id"` // 可选 家的支付宝用户id，如果为空，会从传入了码值信息中获取买家ID
+	TransCurrency      string              `json:"trans_currency,omitempty"`
+	SettleCurrency     string              `json:"settle_currency,omitempty"`
+	DiscountableAmount string              `json:"discountable_amount,omitempty"` // 可选 参与优惠计算的金额，单位为元，精确到小数点后两位，取值范围[0.01,100000000]。 如果该值未传入，但传入了【订单总金额】和【不可打折金额】，则该值默认为【订单总金额】-【不可打折金额】
+	GoodsDetail        []*GoodsDetailItem  `json:"goods_detail,omitempty"`        // 可选 订单包含的商品列表信息，Json格式，其它说明详见商品明细说明
+	OperatorId         string              `json:"operator_id,omitempty"`         // 可选 商户操作员编号
+	TerminalId         string              `json:"terminal_id,omitempty"`         // 可选 商户机具终端编号
+	AuthConfirmMode    string              `json:"auth_confirm_mode,omitempty"`
+	TerminalParams     string              `json:"terminal_params,omitempty"`
+	AgreementParams    AgreementParamsItem `json:"agreement_params,omitempty"` //可选 代扣业务需要传入协议相关信息
 }
 
 func (this AliPayTradePay) APIName() string {
