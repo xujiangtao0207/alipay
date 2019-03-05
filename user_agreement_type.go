@@ -7,13 +7,30 @@ type AliPayUserAgreementPageSignIdentityParams struct {
 	IdentityHash string `json:"identity_hash"`
 	SignUserId   string `json:"sign_user_id"`
 }
+type AliPayUserAgreementPageSignAccessParamsItem struct {
+	Channel string `json:"channel"`
+}
+type AliPayUserAgreementPageSignDeviceParamsItem struct {
+	EquipmentGoodsValue string `json:"equipment_goods_value"` //机具上售卖货物的最大价值
+	OutDeviceId         string `json:"out_device_id"`         //机具设备id
+}
+
 type AliPayUserAgreementPageSign struct {
-	AppAuthToken        string                                    `json:"-"` // 可选
-	ReturnURL           string                                    `json:"-"`
-	NotifyURL           string                                    `json:"notify_url"`
-	PersonalProductCode string                                    `json:"personal_product_code"`
-	ExternalLogonId     string                                    `json:"external_logon_id"` //用户在商户网站的登录账号，用于在签约页面展示，如果为空，则不展示
-	IdentityParams      AliPayUserAgreementPageSignIdentityParams `json:"identity_params"`
+	AppAuthToken    string `json:"-"` // 可选
+	ReturnURL       string `json:"-"`
+	NotifyURL       string `json:"notify_url"`
+	ExternalLogonId string `json:"external_logon_id"` //用户在商户网站的登录账号，用于在签约页面展示，如果为空，则不展示
+
+	//必填
+	PersonalProductCode string                                      `json:"personal_product_code"`
+	SignScene           string                                      `json:"sign_scene"`
+	AccessParams        AliPayUserAgreementPageSignAccessParamsItem `json:"access_params"`
+	DeviceParams        AliPayUserAgreementPageSignDeviceParamsItem `json:"device_params"`
+	ProductCode         string                                      `json:"product_code"`
+	ThirdPartyType      string                                      `json:"third_party_type"`
+	ExternalAgreementNo string                                      `json:"external_agreement_no"`
+
+	IdentityParams AliPayUserAgreementPageSignIdentityParams `json:"identity_params"`
 }
 
 func (this AliPayUserAgreementPageSign) APIName() string {
