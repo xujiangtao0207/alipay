@@ -98,6 +98,7 @@ func (this *AliPay) doRequest(method string, param AliPayParam, results interfac
 	if err != nil {
 		return err
 	}
+
 	req.Header.Set("Content-Type", kContentType)
 
 	resp, err := this.Client.Do(req)
@@ -147,6 +148,19 @@ func (this *AliPay) doRequest(method string, param AliPayParam, results interfac
 	}
 
 	return err
+}
+
+func (this *AliPay) doPacket(method string, param AliPayParam) (signStr string, err error) {
+	if param != nil {
+		p, err := this.URLValues(param)
+		if err != nil {
+			return "", err
+		}
+
+		signStr = this.apiDomain + "?" + p.Encode()
+	}
+
+	return signStr, err
 }
 
 /*

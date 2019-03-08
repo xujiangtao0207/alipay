@@ -39,7 +39,7 @@ func (this AliPayUserAgreementPageSign) APIName() string {
 
 func (this AliPayUserAgreementPageSign) Params() map[string]string {
 	var m = make(map[string]string)
-	m["app_auth_token"] = this.AppAuthToken
+	//m["app_auth_token"] = this.AppAuthToken //注意不能传
 	m["notify_url"] = this.NotifyURL
 	return m
 }
