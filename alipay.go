@@ -92,6 +92,7 @@ func (this *AliPay) doRequest(method string, param AliPayParam, results interfac
 			return err
 		}
 		buf = strings.NewReader(p.Encode())
+		log.Printf("[alipay][%v]req param: %v", param.APIName(), string(p.Encode()))
 	}
 
 	req, err := http.NewRequest(method, this.apiDomain, buf)
