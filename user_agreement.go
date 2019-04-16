@@ -11,3 +11,9 @@ func (this *AliPay) UserAgreementQuery(param AliPayUserAgreementQuery) (results 
 	err = this.doRequest("POST", param, &results)
 	return results, err
 }
+
+// UserAgreementUnSign https://docs.alipay.com/pre-open/20170601105911096277/wob270
+func (this *AliPay) UserAgreementUnSign(param AliPayUserAgreementUnSign) (results *AliPayUserAgreementUnSignResponse, err error) {
+	err = this.doRequest("POST", param, &results)
+	return results, err
+}
