@@ -7,14 +7,14 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
 	"sort"
 	"strings"
 	"time"
 
-	"github.com/chencaixiong/alipay/encoding"
-	"log"
+	"github.com/xujiangtao0207/alipay/encoding"
 )
 
 type AliPay struct {
@@ -29,6 +29,7 @@ type AliPay struct {
 }
 
 func New(appId, aliPublicKey, privateKey string, isProduction bool) (client *AliPay) {
+	var maxPerlHostConnect = 10
 	client = &AliPay{}
 	client.appId = appId
 	//client.partnerId = partnerId
@@ -36,6 +37,25 @@ func New(appId, aliPublicKey, privateKey string, isProduction bool) (client *Ali
 	client.AliPayPublicKey = encoding.FormatPublicKey(aliPublicKey)
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		Dial: func(netw, addr string) (net.Conn, error) {
+			c, err := net.DialTimeout(netw, addr, time.Second*5) //设置建立连接超时
+			if err != nil {
+				return nil, err
+			}
+			c.SetDeadline(time.Now().Add(5 * time.Second)) //设置发送接收数据超时
+			return c, nil
+		},
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   10 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).DialContext,
+		IdleConnTimeout:     1 * time.Second,
+		TLSHandshakeTimeout: 10 * time.Second,
+
+		MaxConnsPerHost:     maxPerlHostConnect,
+		MaxIdleConnsPerHost: maxPerlHostConnect / 2,
+		MaxIdleConns:        maxPerlHostConnect * 10,
 	}
 	client.Client = &http.Client{Transport: tr} //http.DefaultClient
 	if isProduction {
@@ -92,7 +112,7 @@ func (this *AliPay) doRequest(method string, param AliPayParam, results interfac
 			return err
 		}
 		buf = strings.NewReader(p.Encode())
-		log.Printf("[alipay][%v]req param: %v", param.APIName(), string(p.Encode()))
+		//log.Printf("[alipay][%v]req param: %v", param.APIName(), string(p.Encode()))
 	}
 
 	req, err := http.NewRequest(method, this.apiDomain, buf)
@@ -115,7 +135,7 @@ func (this *AliPay) doRequest(method string, param AliPayParam, results interfac
 		return err
 	}
 
-	log.Printf("[alipay][%v]resp body: %v", param.APIName(), string(data))
+	//log.Printf("[alipay][%v]resp body: %v", param.APIName(), string(data))
 
 	if len(this.AliPayPublicKey) > 0 {
 		var dataStr = string(data)
