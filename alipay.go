@@ -355,6 +355,41 @@ func verifyData(data []byte, signType, sign string, key []byte) (ok bool, err er
 	return true, nil
 }
 
+func NewCustomClient(appId, aliPublicKey, privateKey string, url string) (client *AliPay) {
+	var maxPerlHostConnect = 10
+	client = &AliPay{}
+	client.appId = appId
+	//client.partnerId = partnerId
+	client.privateKey = encoding.FormatPrivateKey(privateKey)
+	client.AliPayPublicKey = encoding.FormatPublicKey(aliPublicKey)
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		Dial: func(netw, addr string) (net.Conn, error) {
+			c, err := net.DialTimeout(netw, addr, time.Second*5) //设置建立连接超时
+			if err != nil {
+				return nil, err
+			}
+			c.SetDeadline(time.Now().Add(5 * time.Second)) //设置发送接收数据超时
+			return c, nil
+		},
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   10 * time.Second,
+			KeepAlive: 30 * time.Second,
+		}).DialContext,
+		IdleConnTimeout:     1 * time.Second,
+		TLSHandshakeTimeout: 10 * time.Second,
+
+		MaxConnsPerHost:     maxPerlHostConnect,
+		MaxIdleConnsPerHost: maxPerlHostConnect / 2,
+		MaxIdleConns:        maxPerlHostConnect * 10,
+	}
+	client.Client = &http.Client{Transport: tr} //http.DefaultClient
+	client.apiDomain = url
+	client.SignType = K_SIGN_TYPE_RSA2
+	return client
+}
+
 type DoRequestToJsonResp struct {
 	Code       string `json:"code"`
 	Msg        string `json:"msg"`
