@@ -280,6 +280,9 @@ func parserJSONSource(rawData string, nodeName string, nodeIndex int) (content s
 	return content, sign
 }
 
+func SignWithPKCS1v15(param url.Values, privateKey []byte, hash crypto.Hash) (s string, err error) {
+	return signWithPKCS1v15(param, privateKey, hash)
+}
 func signWithPKCS1v15(param url.Values, privateKey []byte, hash crypto.Hash) (s string, err error) {
 	if param == nil {
 		param = make(url.Values, 0)
