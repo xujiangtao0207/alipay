@@ -362,6 +362,10 @@ type DoRequestToJsonResp struct {
 	BizContent string `json:"bizContent"`
 }
 
+func (this *AliPay) DoRequestToJson(method string, param AliPayParam, results DoRequestToJsonResp) (err error) {
+	return this.doRequestToJson(method, param, results)
+}
+
 func (this *AliPay) doRequestToJson(method string, param AliPayParam, result DoRequestToJsonResp) (err error) {
 	var buf io.Reader
 	if param != nil {
