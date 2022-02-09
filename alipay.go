@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -352,4 +353,122 @@ func verifyData(data []byte, signType, sign string, key []byte) (ok bool, err er
 		return false, err
 	}
 	return true, nil
+}
+
+type DoRequestToJsonResp struct {
+	Code       string `json:"code"`
+	Msg        string `json:"msg"`
+	Sign       string `json:"sign"`
+	BizContent string `json:"bizContent"`
+}
+
+func (this *AliPay) doRequestToJson(method string, param AliPayParam, result DoRequestToJsonResp) (err error) {
+	var buf io.Reader
+	if param != nil {
+		p, err := this.URLValues(param)
+		if err != nil {
+			return err
+		}
+
+		var pp = make(map[string]interface{})
+
+		keys := make([]string, 0, len(p))
+		for k := range p {
+			keys = append(keys, k)
+		}
+
+		// 暂时无数组可能性
+		for _, k := range keys {
+			vs := p[k]
+			if len(vs) > 1 {
+				pp[k] = vs[0]
+			}
+		}
+		bufByte, _ := json.Marshal(&pp)
+		buf = strings.NewReader(string(bufByte))
+
+		log.Printf("[alipay][%v]req param: %v", param.APIName(), string(bufByte))
+	}
+
+	req, err := http.NewRequest(method, this.apiDomain, buf)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", kContentType)
+
+	resp, err := this.Client.Do(req)
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+	if err != nil {
+		return err
+	}
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(data, &result)
+	if err != nil {
+		return err
+	}
+
+	//log.Printf("[alipay][%v]resp body: %v", param.APIName(), string(data))
+
+	if len(this.AliPayPublicKey) > 0 {
+		var dataStr = string(data)
+		var content string
+		var sign string
+		//
+		var rootIndex = 0
+		var rootNodeName = ""
+		if rootIndex > 0 {
+			content, sign = parserJSONSource(dataStr, rootNodeName, rootIndex)
+		}
+		log.Printf("签名内容,签名字段[%v][%v]", content, sign)
+		if sign != "" {
+			if ok, err := verifyData([]byte(content), this.SignType, sign, this.AliPayPublicKey); ok == false {
+				log.Printf("签名异常,签名信息[%v]", err)
+				//return err
+			}
+		}
+	}
+
+	return err
+}
+
+func (this *AliPay) URLValuesToJson(param AliPayParam) (value url.Values, err error) {
+	var p = url.Values{}
+	p.Add("appId", this.appId)
+	p.Add("method", param.APIName())
+	p.Add("charset", kCharset)
+	p.Add("signType", this.SignType)
+	p.Add("timestamp", time.Now().Format(kTimeFormat))
+	p.Add("version", kVersion)
+
+	if len(param.ExtJSONParamName()) > 0 {
+		p.Add(param.ExtJSONParamName(), param.ExtJSONParamValue())
+	}
+
+	var ps = param.Params()
+	if ps != nil {
+		for key, value := range ps {
+			p.Add(key, value)
+		}
+	}
+
+	var hash crypto.Hash
+	if this.SignType == K_SIGN_TYPE_RSA {
+		hash = crypto.SHA1
+	} else {
+		hash = crypto.SHA256
+	}
+	sign, err := signWithPKCS1v15(p, this.privateKey, hash)
+	if err != nil {
+		return nil, err
+	}
+	p.Add("sign", sign)
+	return p, nil
 }
