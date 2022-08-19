@@ -30,7 +30,7 @@ type AliPay struct {
 }
 
 func New(appId, aliPublicKey, privateKey string, isProduction bool) (client *AliPay) {
-	var maxPerlHostConnect = 10
+	var maxPerlHostConnect = 1000
 	client = &AliPay{}
 	client.appId = appId
 	//client.partnerId = partnerId
